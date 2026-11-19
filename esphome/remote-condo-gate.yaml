@@ -1,0 +1,51 @@
+# remote_condo_gate - garage gate remote controller (condominium gate)
+# ESP32 DevKit 30 pin -> PC817 optocoupler -> button of the 12 V gate remote
+#
+# Wiring: GPIO4 --[1 kOhm]--> PC817 pin 1 (anode)
+#         GND ---------------> PC817 pin 2 (cathode)
+#         PC817 pin 4 (collector) -> remote button pad on the 11.5 V side
+#         PC817 pin 3 (emitter)   -> other remote button pad
+
+substitutions:
+  name: remote-condo-gate
+  friendly_name: Garage gate
+  pulse_ms: 500ms          # how long the remote button is "pressed"
+  lockout: 3s              # minimum pause between two commands
+
+# Shared settings (wifi, api, ota, logger, diagnostic sensors, ...).
+# Replace the path with the location of your shared file.
+packages:
+  common: !include common/esp-common.yaml
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Output driving the PC817 LED (off at boot and after any reboot)
+output:
+  - platform: gpio
+    id: gate_out
+    pin: GPIO4
+
+button:
+  - platform: template
+    name: "Open gate"
+    id: gate_button
+    icon: mdi:gate
+    on_press:
+      - script.execute: press_remote
+
+script:
+  # mode single: a command received while a pulse is in progress is ignored
+  - id: press_remote
+    mode: single
+    then:
+      - output.turn_on: gate_out
+      - delay: ${pulse_ms}
+      - output.turn_off: gate_out
+      - delay: ${lockout}
