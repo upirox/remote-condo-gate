@@ -76,6 +76,11 @@ Select the part with the `part` variable at the top of each file and export STL.
 Material: **ASA** in a light colour (UV resistant, stays cooler in the sun).
 4 walls, 5 top/bottom layers; clamp 50–60 % gyroid, boxes 25–30 %.
 
+**Optional private emblem:** both files `include <logo_local.scad>`. If that
+file exists in `cad/` (it is git-ignored) it can engrave an emblem on the lids
+or provide a `logo_mod` slicer modifier; without it OpenSCAD just warns about
+the missing include and the lids stay plain.
+
 ## Assembly notes
 
 - Heat-stake the remote board pins and the PSU board pins with the soldering iron (no metal near the antenna).

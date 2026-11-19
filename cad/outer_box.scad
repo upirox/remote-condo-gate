@@ -22,6 +22,7 @@
 // =====================================================================
 
 part = "assembly";
+box_name = "outer";     // used by the optional private emblem file
 lid_flip = true;   // true: lid flipped for printing (outer face on the bed). false: upright
 $fn = 40;
 
@@ -344,7 +345,10 @@ module mirror_x() translate([L_ext, 0, 0]) mirror([1, 0, 0]) children();
 module box()            mirror_x() box_raw();
 module preview_inside() mirror_x() preview_inside_raw();
 
-module lid() mirror_x() lid_raw();
+module lid() difference() {
+  mirror_x() lid_raw();
+  if (!is_undef(logo_available)) logo_cut();
+}
 
 module to_world() {
   multmatrix([[-1,0,0, L_ext/2],
@@ -366,9 +370,17 @@ module assembly() {
 
 if      (part == "box")    box();
 else if (part == "lid")    { if (lid_flip) translate([0,0,lid_t]) rotate([180,0,0]) lid(); else lid(); }
+else if (part == "logo_mod") { if (!is_undef(logo_available)) logo_mod(); else echo("logo_mod: cad/logo_local.scad not found"); }
 else if (part == "clamp") clamp();
 else if (part == "visor") visor();
 else                      assembly();
 
 // check: the socket must not exceed the box rim (the lid must close on the cord)
 assert(sock_od <= D_base, "socket taller than the box: increase Di or reduce sock_wall");
+
+// ---------------- optional private emblem ----------------
+// If cad/logo_local.scad exists (it is git-ignored and never published) it is
+// included here and can engrave an emblem on the lid or provide a slicer
+// modifier (part = "logo_mod"). Without it OpenSCAD only prints a warning
+// about the missing include file and the lid stays plain.
+include <logo_local.scad>

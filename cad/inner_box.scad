@@ -14,6 +14,7 @@
 // =====================================================================
 
 part = "assembly";
+box_name = "inner";     // used by the optional private emblem file
 lid_flip = true;   // true: lid flipped for printing (outer face on the bed). false: upright
 $fn = 40;
 
@@ -163,6 +164,7 @@ module lid() {
       }
     }
     for (p = posts) translate([p[0], p[1], -1]) cylinder(d=3.4, h=lid_t + 2);
+    if (!is_undef(logo_available)) logo_cut();
   }
 }
 
@@ -193,6 +195,14 @@ module assembly() {
 
 if      (part == "box") box();
 else if (part == "lid")    { if (lid_flip) translate([0,0,lid_t]) rotate([180,0,0]) lid(); else lid(); }
+else if (part == "logo_mod") { if (!is_undef(logo_available)) logo_mod(); else echo("logo_mod: cad/logo_local.scad not found"); }
 else                    assembly();
 
 echo(str("Outer size: ", L_ext, " x ", H_ext, " x ", D_base + lid_t, " mm"));
+
+// ---------------- optional private emblem ----------------
+// If cad/logo_local.scad exists (it is git-ignored and never published) it is
+// included here and can engrave an emblem on the lid or provide a slicer
+// modifier (part = "logo_mod"). Without it OpenSCAD only prints a warning
+// about the missing include file and the lid stays plain.
+include <logo_local.scad>

@@ -1,0 +1,9 @@
+# Private emblem, kept only on the local machine
+cad/logo_local.scad
+*.svg
+
+# Slicer / export artefacts
+*.stl
+*.3mf
+*.gcode
+.DS_Store
