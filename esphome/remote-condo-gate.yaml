@@ -9,7 +9,7 @@
 substitutions:
   name: remote-condo-gate
   friendly_name: Garage gate
-  pulse_ms: 500ms          # how long the remote button is "pressed"
+  pulse_ms: 750ms          # how long the remote button is "pressed"
   lockout: 3s              # minimum pause between two commands
 
 # Shared settings (wifi, api, ota, logger, diagnostic sensors, ...).
