@@ -73,7 +73,7 @@ top_gap = 2.0;    // extra space at the top for the clamp screw heads
 
 Li = clr + rem_len + end_gap;          // 58
 Hi = clr + rem_w + top_gap;            // 30.6
-Di = so_h + rem_th + 4.0;              // 11.1: the conduit socket (d 12.8) fits within the box depth
+Di = so_h + rem_th + 5.0;              // 12.1: the conduit socket (d 13.8) fits within the box depth
 L_ext  = Li + 2*wall;
 H_ext  = Hi + 2*wall;
 D_base = floor_t + Di;
@@ -94,12 +94,12 @@ cable_d = 4.5;    // 4 x 0.22 cable
 tube_od   = 9.2;
 tube_val  = 6.8;     // outer diameter in the grooves (A - 2E)
 tube_p    = 2.5;     // corrugation pitch
-sock_bore = tube_od + 0.4;
+sock_bore = tube_od + 1.4;   // +1 mm after test fit: the real conduit did not enter
 sock_wall = 1.6;
 sock_od   = sock_bore + 2*sock_wall;   // ~12.8
 sock_len  = 14;      // socket depth
 snap_n    = 2;       // snap rings (0 = none)
-snap_d    = 8.4;     // ring inner diameter (between valley 6.8 and crest 9.2)
+snap_d    = 9.4;     // ring inner diameter (+1 mm, same as the bore)
 fit_x     = Li + 2*wall - 12;          // position along the box (*_raw coordinates)
 fit_zc    = sock_od/2;                 // socket axis: tangent to the floor (z=0), prints without supports
 pc_c    = [bx0 + 40, by0 + 5.05];   // PC817 centre in the battery cut-out
