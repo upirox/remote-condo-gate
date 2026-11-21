@@ -9,6 +9,7 @@
 //         "lid"       lid (exported already flipped: outer face on the bed)
 //         "clamp"     clamp body (in the slicer lay it on its SIDE)
 //         "visor"     visor + upper jaw (exported flat, ready to print)
+//         "socket_test"  only the conduit socket with a piece of wall (quick fit test)
 //
 //  Sealing: 1.5 mm solid silicone O-ring cord (~19 cm) in a groove on top of
 //  the walls + cap-style lid with 3 mm drip skirt; nylon M3 screws on the
@@ -373,6 +374,11 @@ else if (part == "lid")    { if (lid_flip) translate([0,0,lid_t]) rotate([180,0,
 else if (part == "logo_mod") { if (!is_undef(logo_available)) logo_mod(); else echo("logo_mod: cad/logo_local.scad not found"); }
 else if (part == "clamp") clamp();
 else if (part == "visor") visor();
+else if (part == "socket_test")   // quick fit test: only the conduit socket with a piece of wall and floor
+  intersection() {
+    box();
+    translate([L_ext - fit_x - 12, -sock_len - 2, -1]) cube([24, sock_len + wall + 6, D_base + 2]);
+  }
 else                      assembly();
 
 // check: the socket must not exceed the box rim (the lid must close on the cord)

@@ -5,7 +5,7 @@
 //  cap-style lid with skirt. Partition between the 230 V and low-voltage areas.
 //  Parametric - OpenSCAD 2021+
 //
-//  part = "assembly" | "box" | "lid"
+//  part = "assembly" | "box" | "lid" | "socket_test"
 //  Print: light ASA, 4 walls, 5 top/bottom layers, 25-30% gyroid.
 //  box: floor on the bed. lid: exported already flipped (outer face on the bed).
 //
@@ -196,6 +196,11 @@ module assembly() {
 
 if      (part == "box") box();
 else if (part == "lid")    { if (lid_flip) translate([0,0,lid_t]) rotate([180,0,0]) lid(); else lid(); }
+else if (part == "socket_test")   // quick fit test: only the conduit socket with a piece of wall and floor
+  intersection() {
+    box();
+    translate([L_ext - wall - 4, sock_y - 12, -1]) cube([wall + 4 + sock_len + 2, 24, sock_od + 4]);
+  }
 else if (part == "logo_mod") { if (!is_undef(logo_available)) logo_mod(); else echo("logo_mod: cad/logo_local.scad not found"); }
 else                    assembly();
 
