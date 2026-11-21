@@ -72,10 +72,10 @@ posts = [ [wall + post_d/2,      wall + post_d/2],
 // (left/right as seen looking at the lid)
 gland_d  = 16.3;                       // M16x1.5 cable gland for the 230 V cable
 gland_y  = wall + 22;                  // above the corner boss
-tube_od  = 9.2; tube_p = 2.5;          // "6 mm" corrugated conduit to the outer box
-sock_bore = tube_od + 1.4;   // +1 mm after test fit: the real conduit did not enter
+tube_od  = 10.5; tube_p = 2.5;         // conduit to the outer box: measured OD (annular corrugation)
+sock_bore = tube_od + 0.4;
 sock_wall = 1.6; sock_od = sock_bore + 2*sock_wall;
-sock_len = 14; snap_n = 2; snap_d = 9.4;
+sock_len = 14; snap_n = 2; snap_d = tube_od - 0.8;
 sock_y   = wall + 12;                 // below the step-up
 sock_zc  = sock_od/2;                  // tangent to the floor: prints without supports
 
