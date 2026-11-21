@@ -36,7 +36,7 @@ under the balcony's copper flashing; the ESP32, the 230 V power supply and a
 | MT3608 OUT− / GND | remote former battery − contact |
 
 Cable between the boxes: 4 × 0.22 mm² (+12 V, GND, LED+, LED−) in a
-"6 mm" PP corrugated conduit (OD 9.2 mm).
+"6 mm" PP corrugated conduit (measured OD ~10.5 mm, annular corrugation).
 
 Notes:
 - The remote used here is a self-learning fixed-code duplicator with an
