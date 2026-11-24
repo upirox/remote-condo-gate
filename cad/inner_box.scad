@@ -1,6 +1,6 @@
 // =====================================================================
 //  remote_condo_gate - INNER box: 230 V -> 5 V supply (Hi-Link HLK-5M05B on a
-//  4x6 perfboard), ESP32 DevKit 30 pin in a cradle, MT3608 5 -> 12 V step-up.
+//  4x6 perfboard), ESP32 DevKit 30 pin in a cradle, MT3608 or XL6009 5 -> 12 V step-up.
 //  Sealing: 1.5 mm silicone O-ring cord in a groove on top of the walls +
 //  cap-style lid with skirt. Partition between the 230 V and low-voltage areas.
 //  Parametric - OpenSCAD 2021+
@@ -42,8 +42,12 @@ psu_stake = 2.5;     // pin protrusion above the board, to be heat-staked
 esp_w = 29.5; esp_l = 52;
 esp_h = 16;          // board bottom height: 16 with wires soldered to the pins, 26 with Dupont connectors
 esp_rib = 18;        // central support rib (between the two pin rows)
-// MT3608: 17 x 37
-mt_w = 17; mt_l = 37; mt_h = 3;
+// 5 -> 12 V step-up module: "MT3608" (17 x 37) or "XL6009" (21 x 43, ~14 mm tall)
+stepup = "XL6009";
+mt_w = stepup == "XL6009" ? 21 : 17;
+mt_l = stepup == "XL6009" ? 43 : 37;
+mt_h = 3;            // rails under the module (solder joint clearance)
+mt_comp = stepup == "XL6009" ? 12.5 : 6;   // component height above the module PCB (preview)
 
 cl     = 2;          // general clearance
 part_t = 2;          // 230 V / low-voltage partition
@@ -145,7 +149,7 @@ module box() {
   translate([esp_x0 + esp_w/2 - esp_rib/2, esp_y0 + 6, floor_t]) cube([esp_rib, esp_l - 12, esp_h]);
   for (e = [0,1]) translate([esp_x0 + esp_w/2 - 5, e ? esp_y0 + esp_l + 0.3 : esp_y0 - 2.3, floor_t])
     cube([10, 2, esp_h + 1.0]);
-  // MT3608 cradle: two rails with a tunnel for a cable tie
+  // step-up cradle: two rails with a tunnel for a cable tie
   for (s = [0,1]) translate([mt_x0 + s*(mt_w - 2.5), mt_y0 + 5, floor_t]) difference() {
     cube([2.5, mt_l - 10, mt_h]);
     translate([-1, (mt_l - 10)/2 - 2, -0.01]) cube([4.5, 4, 1.6]);
@@ -181,8 +185,9 @@ module preview_parts() {
   color("silver") translate([esp_x0 + 5, esp_y0 + esp_l - 25, floor_t + esp_h + 1.6]) cube([18, 25, 3]);
   for (s=[0,1]) color("black") translate([esp_x0 + 0.8 + s*(esp_w - 4.1), esp_y0 + 4, floor_t + esp_h - 8.5])
     cube([2.5, 38, 8.5]);
-  // MT3608
+  // step-up module
   color("royalblue") translate([mt_x0, mt_y0, floor_t + mt_h]) cube([mt_w, mt_l, 1.6]);
+  color("silver") translate([mt_x0 + 3, mt_y0 + mt_l/2 - 7, floor_t + mt_h + 1.6]) cube([mt_w - 6, 14, mt_comp]);
   // cable gland and conduit
   color("gray") translate([0, gland_y, floor_t + Di/2]) rotate([0,-90,0]) cylinder(d=20, h=15, $fn=6);
   color("white") translate([L_ext + 1, sock_y, sock_zc]) rotate([0,90,0]) cylinder(d=tube_od, h=40);
