@@ -26,6 +26,11 @@ esp32:
   framework:
     type: esp-idf
 
+# Required by the "debug:" component used in the shared package.
+# Packages are merged, so this is fine even if the shared file adds a logger later.
+logger:
+  level: INFO
+
 # Output driving the PC817 LED (off at boot and after any reboot)
 output:
   - platform: gpio
