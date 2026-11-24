@@ -18,11 +18,14 @@ under the balcony's copper flashing; the ESP32, the 230 V power supply and a
 
 | Path | Content |
 |---|---|
+| `docs/wiring.svg` / `.png` | Wiring diagram |
 | `esphome/remote-condo-gate.yaml` | ESPHome configuration (one "Open gate" button) |
 | `cad/outer_box.scad` | Outer box, lid, two-part flashing clamp + visor |
 | `cad/inner_box.scad` | Inner box for PSU, ESP32 and step-up, lid |
 
 ## Electronics
+
+![Wiring diagram](docs/wiring.svg)
 
 **Wiring**
 
