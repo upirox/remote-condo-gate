@@ -245,9 +245,13 @@ module lipframe() {
 // The two parts are joined with 2 M3 self-tapping screws into the back.
 // The flashing slides between the lower jaw (with rubber pad) and the visor;
 // the M4 screw goes through the upper jaw and visor and presses the sheet.
-vis_ext = 10;                    // overhang beyond the flashing edge
+vis_ext = 30;                    // overhang beyond the flashing edge
 vis_w   = L_ext + 10;            // visor width (box + 5 mm per side)
-vis_t   = 1.6;                   // visor thickness
+vis_t   = 2.4;                   // visor thickness (stiffer for the 30 mm overhang)
+rib_t   = 1.6;                   // stiffening ribs on top, running down the slope
+rib_h   = 5;                     // rib height at the upper end (tapers to rib_h_end)
+rib_h_end = 1.2;                 // rib height near the drip edge
+rib_xs  = [ (cw/2 + vis_w/2)/2, vis_w/2 - rib_t/2 ];   // per side: mid-wing and wing tip
 vis_v0  = lip_t/2 + 0.2;         // visor bottom face, just above the sheet metal
 scr_dx  = 6;                     // M3 joining screws in the back
 v_top   = gap/2 + jt_up;         // top of the upper jaw
@@ -262,6 +266,11 @@ module visor_local() {
     union() {
       translate([-vis_w/2, -vis_ext, vis_v0]) cube([vis_w, vis_ext + grip, vis_t]);           // visor
       translate([-cw/2, -c_tip-sp, vis_v0 + vis_t - 0.01]) cube([cw, c_tip+sp+grip, v_top - vis_v0 - vis_t]); // upper jaw
+      // tapered ribs on top, along the slope (they do not stop the water running off)
+      for (sx = [-1, 1], rx = rib_xs) hull() {
+        translate([sx*rx - rib_t/2, grip - 1, vis_v0 + vis_t - 0.01]) cube([rib_t, 1, rib_h]);
+        translate([sx*rx - rib_t/2, -vis_ext + 3, vis_v0 + vis_t - 0.01]) cube([rib_t, 1, rib_h_end]);
+      }
     }
     // drip groove on the underside, near the outer edge
     translate([-vis_w/2 - 1, -vis_ext + 1.5, vis_v0 - 0.1]) cube([vis_w + 2, 1.0, 0.8]);
