@@ -3,6 +3,8 @@
 //  4x6 perfboard), ESP32 DevKit 30 pin in a cradle, MT3608 or XL6009 5 -> 12 V step-up.
 //  Sealing: 1.5 mm silicone O-ring cord in a groove on top of the walls +
 //  cap-style lid with skirt. Partition between the 230 V and low-voltage areas.
+//  Closure: 4 external lugs (outside the cord ring) with M3 brass heat-set inserts,
+//  M3 x 8-10 stainless screws through the lid ears: no holes inside the sealed area.
 //  Parametric - OpenSCAD 2021+
 //
 //  part = "assembly" | "box" | "lid" | "socket_test"
@@ -71,11 +73,13 @@ part_x0 = psu_x0 + psu_w + cl;
 esp_x0  = part_x0 + part_t + cl; esp_y0 = wall + 14;   // USB at the bottom, antenna at the top
 mt_x0   = esp_x0 + esp_w + 3;    mt_y0  = wall + 20;
 
-post_d = 6;
-posts = [ [wall + post_d/2,      wall + post_d/2],
-          [wall + post_d/2,      wall + Hi - post_d/2],
-          [wall + Li - post_d/2, wall + post_d/2],
-          [wall + Li - post_d/2, wall + Hi - post_d/2] ];
+// lid closure: 4 EXTERNAL lugs on the top and bottom walls, outside the cord ring
+lug_l   = 9;       // protrusion from the wall
+lug_w   = 10;      // width
+lug_top = 7;       // solid part under the rim (45 degree gusset below: no supports)
+lug_xs  = [16, L_ext - 16];
+ins_d   = 4.2;     // hole for an M3 heat-set insert (OD 4.6-5): check your insert's datasheet
+ins_l   = 6;       // hole depth (inserts up to 5.7 mm long)
 
 // entries: 230 V on the LEFT side, conduit to the remote on the RIGHT side
 // (left/right as seen looking at the lid)
@@ -96,6 +100,9 @@ module outline2d() {
   translate([corner_r, corner_r]) offset(r=corner_r)
     square([L_ext - 2*corner_r, H_ext - 2*corner_r]);
 }
+// places children at the 4 lugs; local frame: lug sticking out towards -Y from the wall face
+module at_lugs() for (x = lug_xs, top = [0,1])
+  translate([x, top ? H_ext : 0, 0]) if (top) mirror([0,1,0]) children(); else children();
 module ring2d(w) {
   difference() {
     offset(r = -(wall/2 - w/2)) outline2d();
@@ -109,12 +116,23 @@ module box() {
       linear_extrude(D_base) outline2d();
       // conduit socket on the right side
       translate([L_ext - 0.01, sock_y, sock_zc]) rotate([0,90,0]) cylinder(d=sock_od, h=sock_len + 0.01);
+      // closure lugs
+      at_lugs() hull() {
+        translate([-lug_w/2, -lug_l, D_base - lug_top]) cube([lug_w, lug_l + 0.01, lug_top]);
+        translate([-lug_w/2, -0.01, max(0, D_base - lug_top - lug_l)])   // never below the floor
+          cube([lug_w, 0.02, D_base - max(0, D_base - lug_top - lug_l)]);
+      }
       // mounting ears, top and bottom
       for (top = [0,1]) translate([L_ext/2 - ear_w/2, top ? H_ext - 0.01 : -ear_l + 0.01, 0])
         difference() {
           cube([ear_w, ear_l, ear_t]);
           translate([ear_w/2, top ? ear_l/2 + 1 : ear_l/2 - 1, -1]) cylinder(d=ear_hole, h=ear_t + 2);
         }
+    }
+    // heat-set insert holes in the lugs (+ clearance for the screw tip)
+    at_lugs() translate([0, -lug_l/2, 0]) {
+      translate([0, 0, D_base - ins_l]) cylinder(d=ins_d, h=ins_l + 1, $fn=32);
+      translate([0, 0, D_base - ins_l - 4]) cylinder(d=2.8, h=5, $fn=24);
     }
     // cavity
     translate([0, 0, floor_t]) linear_extrude(Di + 1) offset(r=-wall) outline2d();
@@ -132,11 +150,6 @@ module box() {
     translate([L_ext - wall - 1, sock_y, sock_zc]) rotate([0,90,0]) cylinder(d=5.5, h=wall + 2.5);
     // condensation drain (low-voltage area)
     translate([esp_x0 + esp_w - 3, -1, floor_t + 0.9]) rotate([-90,0,0]) cylinder(d=1.5, h=wall + 2);
-  }
-  // lid screw bosses
-  for (p = posts) translate([p[0], p[1], floor_t]) difference() {
-    cylinder(d=post_d, h=Di);
-    translate([0,0,Di-10]) cylinder(d=2.5, h=11);
   }
   // supports + retaining pins for the PSU board (heat-staked, no screws)
   for (ix=[0,1], iy=[0,1])
@@ -180,12 +193,17 @@ module lid() {
   difference() {
     union() {
       linear_extrude(lid_t) offset(r=o) outline2d();
+      // ears over the lugs
+      at_lugs() translate([-lug_w/2, -lug_l, 0]) cube([lug_w, lug_l + 0.01, lid_t]);
       translate([0,0,-sk_h]) linear_extrude(sk_h + 0.01) difference() {
         offset(r=o) outline2d();
         offset(r=sk_g) outline2d();
       }
     }
-    for (p = posts) translate([p[0], p[1], -1]) cylinder(d=3.4, h=lid_t + 2);
+    // skirt notches around the lugs
+    at_lugs() translate([-lug_w/2 - 0.3, -lug_l - 1, -sk_h - 1]) cube([lug_w + 0.6, lug_l + 1, sk_h + 1]);
+    // M3 screw holes in the lid ears
+    at_lugs() translate([0, -lug_l/2, -1]) cylinder(d=3.4, h=lid_t + 2, $fn=24);
     if (!is_undef(logo_available)) logo_cut();
   }
 }
