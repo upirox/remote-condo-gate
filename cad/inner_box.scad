@@ -42,6 +42,11 @@ psu_stake = 2.5;     // pin protrusion above the board, to be heat-staked
 esp_w = 29.5; esp_l = 52;
 esp_h = 16;          // board bottom height: 16 with wires soldered to the pins, 26 with Dupont connectors
 esp_rib = 18;        // central support rib (between the two pin rows)
+esp_stop_w = 14;     // end stops (front and back of the cradle)
+esp_stop_t = 3;
+tie_w   = 4.0;       // cable-tie channel: fits ties up to 3.6 mm wide
+tie_h   = 2.0;
+tie_off = 0;         // on the centre line: rides on the USB-C shell and the module can, clear of the EN/BOOT buttons
 // 5 -> 12 V step-up module: "MT3608" (17 x 37) or "XL6009" (21 x 43, ~14 mm tall)
 stepup = "XL6009";
 mt_w = stepup == "XL6009" ? 21 : 17;
@@ -140,15 +145,27 @@ module box() {
       cylinder(d=4, h=psu_so);
       cylinder(d=psu_pin, h=psu_so + psu_t + psu_stake, $fn=24);
     }
-  // 230 V / low-voltage partition, with an opening at the top for the 5 V wires
+  // 230 V / low-voltage partition, with a full-height slot for the 5 V wires (down to the floor)
   translate([part_x0, wall, floor_t]) difference() {
     cube([part_t, Hi, Di - 0.6]);
-    translate([-1, Hi - 16, Di - 14]) cube([part_t + 2, 10, 15]);
+    translate([-1, Hi - 16, -1]) cube([part_t + 2, 10, Di + 1]);
   }
-  // ESP32 cradle: central rib between the pin rows + end stops
-  translate([esp_x0 + esp_w/2 - esp_rib/2, esp_y0 + 6, floor_t]) cube([esp_rib, esp_l - 12, esp_h]);
-  for (e = [0,1]) translate([esp_x0 + esp_w/2 - 5, e ? esp_y0 + esp_l + 0.3 : esp_y0 - 2.3, floor_t])
-    cube([10, 2, esp_h + 1.0]);
+  // ESP32 cradle: central rib between the pin rows + end stops.
+  // Retention: one cable tie (max 3.6 mm wide) runs lengthwise over the board, down the outside
+  // of both end stops, through their slots and back under the board in the channel of the rib.
+  // Centred, the tie rests on the USB-C shell and on the WROOM can, away from the EN/BOOT buttons.
+  // It covers the USB-C opening: cut it for a USB flash (OTA otherwise).
+  difference() {
+    union() {
+      translate([esp_x0 + esp_w/2 - esp_rib/2, esp_y0 + 6, floor_t]) cube([esp_rib, esp_l - 12, esp_h]);
+      for (e = [0,1]) translate([esp_x0 + esp_w/2 - esp_stop_w/2,
+                                 e ? esp_y0 + esp_l + 0.3 : esp_y0 - 0.3 - esp_stop_t, floor_t])
+        cube([esp_stop_w, esp_stop_t, esp_h + 1.0]);
+    }
+    // tie channel: through both end stops and along the bottom of the rib
+    translate([esp_x0 + esp_w/2 + tie_off - tie_w/2, esp_y0 - esp_stop_t - 2, floor_t - 0.01])
+      cube([tie_w, esp_l + 2*esp_stop_t + 4, tie_h]);
+  }
   // step-up cradle: two rails with a tunnel for a cable tie
   for (s = [0,1]) translate([mt_x0 + s*(mt_w - 2.5), mt_y0 + 5, floor_t]) difference() {
     cube([2.5, mt_l - 10, mt_h]);
