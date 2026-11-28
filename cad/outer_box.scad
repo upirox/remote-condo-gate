@@ -12,8 +12,8 @@
 //         "socket_test"  only the conduit socket with a piece of wall (quick fit test)
 //
 //  Sealing: 1.5 mm solid silicone O-ring cord (~19 cm) in a groove on top of
-//  the walls + cap-style lid with 3 mm drip skirt; nylon M3 screws on the
-//  antenna end, M2 screws with rubber washers on the cable end; adhesive
+//  the walls + cap-style lid with 3 mm drip skirt; 4 external lugs (2 per end,
+//  outside the cord ring) with nylon M3 screws and nuts; adhesive
 //  heat-shrink between the conduit socket and the conduit.
 //  Print: ASA (light colour), 4 walls, 5 top/bottom layers.
 //
@@ -69,7 +69,7 @@ stake_h = 5.0;    // pin length beyond (so_h + pcb_t): with 2.5 the pins ended f
                   // so the board sits ~2.5 mm higher -> expected real protrusion ~2.5
 pin_d   = 1.75;   // same diameter for all pins (also in the 3 mm hole: easier to heat-stake)
 clr     = 0.5;    // clearance around the board
-end_gap = 4.5;    // space on the cable end (lid screws + wire entry)
+end_gap = 4.5;    // space on the cable end (wire entry)
 top_gap = 2.0;    // extra space at the top for the clamp screw heads
 
 Li = clr + rem_len + end_gap;          // 58
@@ -83,9 +83,6 @@ bx0 = wall + clr;
 by0 = wall + clr;
 function B(p) = [bx0 + p[1], by0 + rem_w - p[0]];   // board -> box coordinates
 
-boss_d  = 4.4;    // lid screw bosses (M2 self-tapping, 1.6 pilot)
-bosses  = [ [wall + Li - boss_d/2, wall + boss_d/2],
-            [wall + Li - boss_d/2, wall + Hi - boss_d/2] ];
 
 cable_d = 4.5;    // 4 x 0.22 cable
 
@@ -105,7 +102,7 @@ fit_x     = Li + 2*wall - 12;          // position along the box (*_raw coordina
 fit_zc    = sock_od/2;                 // socket axis: tangent to the floor (z=0), prints without supports
 pc_c    = [bx0 + 40, by0 + 5.05];   // PC817 centre in the battery cut-out
 
-// lid closure on the antenna end: 2 EXTERNAL lugs (outside the cord ring)
+// lid closure: 4 EXTERNAL lugs, 2 on each end (outside the cord ring),
 // with NYLON M3 screw and nylon M3 nut slid sideways into a slot
 lug_l   = 7;      // lug protrusion from the wall
 lug_w   = 8;      // width
@@ -136,17 +133,17 @@ module box_raw() {
       linear_extrude(D_base) outline2d();
       // tubular conduit socket, pointing down
       translate([fit_x, 0.01, fit_zc]) rotate([90,0,0]) cylinder(d=sock_od, h=sock_len + 0.01);
-      // closure lugs on the antenna end (45 degree gusset below: no supports)
-      for (y = lug_ys) hull() {
-        translate([-lug_l, y - lug_w/2, D_base - lug_top]) cube([lug_l + 0.01, lug_w, lug_top]);
-        translate([-0.01, y - lug_w/2, max(0, D_base - lug_top - lug_l)])   // never below the floor
+      // closure lugs on both ends (45 degree gusset below: no supports)
+      at_lugs() hull() {
+        translate([-lug_l, -lug_w/2, D_base - lug_top]) cube([lug_l + 0.01, lug_w, lug_top]);
+        translate([-0.01, -lug_w/2, max(0, D_base - lug_top - lug_l)])   // never below the floor
           cube([0.02, lug_w, D_base - max(0, D_base - lug_top - lug_l)]);
       }
     }
     // lugs: M3 through hole and side slot for the nut
-    for (y = lug_ys) {
-      translate([-lug_l/2, y, D_base - lug_top - lug_l - 1]) cylinder(d=3.4, h=lug_top + lug_l + 2);
-      translate([-lug_l - 1, y - nut_af/2, D_base - lug_top + 1.3]) cube([lug_l/2 + 1 + nut_af/2, nut_af, nut_t]);
+    at_lugs() {
+      translate([-lug_l/2, 0, D_base - lug_top - lug_l - 1]) cylinder(d=3.4, h=lug_top + lug_l + 2);
+      translate([-lug_l - 1, -nut_af/2, D_base - lug_top + 1.3]) cube([lug_l/2 + 1 + nut_af/2, nut_af, nut_t]);
     }
     // cavity with corners concentric to the outline (uniform wall thickness)
     translate([0, 0, floor_t]) linear_extrude(Di + 1) offset(r=-wall) outline2d();
@@ -168,11 +165,6 @@ module box_raw() {
     // cord groove on top of the walls
     translate([0,0,D_base - gr_d]) linear_extrude(gr_d + 1) ring2d(gr_w);
   }
-  // lid screw bosses
-  for (p = bosses) translate([p[0], p[1], floor_t]) difference() {
-    cylinder(d=boss_d, h=Di);
-    translate([0,0,Di-6]) cylinder(d=1.6, h=7);
-  }
   // board supports: a plastic pin in each of the 3 holes, protruding above the
   // board by stake_h mm; heat-stake it with the soldering iron (no metal:
   // the antenna and SMD parts are close to the holes)
@@ -188,7 +180,11 @@ module box_raw() {
     cube([1.5, 4, 1.8]);
 }
 
-// 2D ring on the wall centre line, width w
+// places children at the closure lugs (ends: 0 = antenna end, 1 = cable end);
+// local frame: lug sticking out towards -X from the end wall, centred on Y = 0
+module at_lugs(ends = [0, 1]) for (e = ends, y = lug_ys)
+  translate([e ? L_ext : 0, y, 0]) if (e) mirror([1,0,0]) children(); else children();
+
 // outer outline with rounded corners
 module outline2d() {
   translate([corner_r, corner_r]) offset(r=corner_r)
@@ -212,15 +208,16 @@ module lid_raw() {
     union() {
       linear_extrude(lid_t) offset(r=o) outline2d();
       // lid ears over the lugs
-      for (y = lug_ys) translate([-lug_l, y - lug_w/2, 0]) cube([lug_l + 0.01, lug_w, lid_t]);
+      at_lugs() translate([-lug_l, -lug_w/2, 0]) cube([lug_l + 0.01, lug_w, lid_t]);
       // skirt / drip edge all around
       translate([0,0,-sk_h]) linear_extrude(sk_h + 0.01) difference() {
         offset(r=o) outline2d();
         offset(r=sk_g) outline2d();
       }
     }
-    for (p = bosses) translate([p[0], p[1], -1]) cylinder(d=2.4, h=lid_t + 2);
-    for (y = lug_ys) translate([-lug_l/2, y, -1]) cylinder(d=3.4, h=lid_t + 2);
+    at_lugs() translate([-lug_l/2, 0, -1]) cylinder(d=3.4, h=lid_t + 2);
+    // skirt notches around the cable-end lugs
+    at_lugs(ends=[1]) translate([-lug_l - 1, -lug_w/2 - 0.3, -sk_h - 1]) cube([lug_l + 1, lug_w + 0.6, sk_h + 1]);
     // no skirt on the antenna end: the lugs are there
     translate([-10, -10, -sk_h - 1]) cube([10 + corner_r, H_ext + 20, sk_h + 1 - 0.01]);
     // skirt shaped around the socket (0.2 mm clearance): no side gaps.

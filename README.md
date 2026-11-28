@@ -57,7 +57,7 @@ Notes:
 - 1.5 mm **solid** silicone O-ring cord (~60 cm for both boxes)
 - M16 × 1.5 IP68 cable gland (230 V cable)
 - 6 mm PP corrugated conduit + 3:1 adhesive-lined heat-shrink
-- Outer box: nylon M3 × 10 screws and nuts, M2 heat-set inserts + M2 × 6 screws (clamp), M4 stainless screw + nut
+- Outer box: 4 × nylon M3 × 10 screws and nuts (lid), M2 heat-set inserts + M2 × 6 screws (clamp), M4 stainless screw + nut
 - Inner box: 4 × M3 brass heat-set inserts (OD 4.6–5, ≤ 5.7 mm long) + 4 × M3 × 8–10 stainless screws
 - EPDM foam weather strip (under the visor's upper edge)
 
