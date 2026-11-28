@@ -237,11 +237,11 @@ module lipframe() {
 // The clamp is in TWO PARTS, both printable without supports:
 //  - "clamp": lower jaw + back + link to the box flange
 //             (print lying on its SIDE)
-//  - "visor": visor + upper jaw with M4 nut
+//  - "visor": visor + upper jaw with M3 nut
 //             (print with the visor flat on the bed)
 // The two parts are joined with 2 M3 self-tapping screws into the back.
 // The flashing slides between the lower jaw (with rubber pad) and the visor;
-// the M4 screw goes through the upper jaw and visor and presses the sheet.
+// the M3 screw goes through the upper jaw and visor and presses the sheet.
 vis_ext = 30;                    // overhang beyond the flashing edge
 vis_w   = L_ext + 10;            // visor width (box + 5 mm per side)
 vis_t   = 2.4;                   // visor thickness (stiffer for the 30 mm overhang)
@@ -252,6 +252,9 @@ rib_xs  = [ (cw/2 + vis_w/2)/2, vis_w/2 - rib_t/2 ];   // per side: mid-wing and
 vis_v0  = lip_t/2 + 0.2;         // visor bottom face, just above the sheet metal
 scr_dx  = 6;                     // M3 joining screws in the back
 v_top   = gap/2 + jt_up;         // top of the upper jaw
+cs_d    = 3.4;                   // clamping screw: M3 stainless (x 12)
+cs_af   = 5.8;                   // M3 nut across flats (5.5 + clearance)
+cs_nt   = 2.8;                   // M3 nut pocket depth (nut 2.4)
 
 module lower_jaw()  translate([-cw/2, -c_tip-sp, -gap/2-jt_lo]) cube([cw, c_tip+sp+grip, jt_lo]);
 module spine_low()  translate([-cw/2, -c_tip-sp, -gap/2-jt_lo]) cube([cw, sp, gap/2 + jt_lo + vis_v0]);
@@ -271,10 +274,10 @@ module visor_local() {
     }
     // drip groove on the underside, near the outer edge
     translate([-vis_w/2 - 1, -vis_ext + 1.5, vis_v0 - 0.1]) cube([vis_w + 2, 1.0, 0.8]);
-    // M4 screw, captive nut and wide hole in the visor to insert the nut
-    translate([0, bolt_u, vis_v0 - 1]) cylinder(d=4.4, h=v_top + 2);
-    translate([0, bolt_u, vis_v0 + vis_t - 0.01]) cylinder(d=7.3/cos(30), h=3.4, $fn=6);
-    translate([0, bolt_u, vis_v0 - 1]) cylinder(d=9, h=vis_t + 1);
+    // M3 clamping screw, captive nut and wide hole in the visor to insert the nut
+    translate([0, bolt_u, vis_v0 - 1]) cylinder(d=cs_d, h=v_top + 2, $fn=24);
+    translate([0, bolt_u, vis_v0 + vis_t - 0.01]) cylinder(d=cs_af/cos(30), h=cs_nt, $fn=6);
+    translate([0, bolt_u, vis_v0 - 1]) cylinder(d=cs_af/cos(30) + 0.5, h=vis_t + 1);
     // M3 joining screws into the back
     for (s=[-1,1]) translate([s*scr_dx, -c_tip - sp/2, vis_v0 - 1]) cylinder(d=3.4, h=v_top + 2);
   }
