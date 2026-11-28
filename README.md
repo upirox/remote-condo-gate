@@ -22,6 +22,7 @@ under the balcony's copper flashing; the ESP32, the 230 V power supply and a
 | `esphome/remote-condo-gate.yaml` | ESPHome configuration (one "Open gate" button) |
 | `cad/outer_box.scad` | Outer box, lid, two-part flashing clamp + visor |
 | `cad/inner_box.scad` | Inner box for PSU, ESP32 and step-up, lid |
+| `cad/conduit_coupler.scad` | In-line coupler for two conduit segments |
 
 ## Electronics
 
@@ -76,6 +77,7 @@ Select the part with the `part` variable at the top of each file and export STL.
 |---|---|---|
 | `outer_box.scad` | `box`, `lid`, `clamp`, `visor` | box: floor down · lid & visor: exported ready · clamp: lay on its side |
 | `inner_box.scad` | `box`, `lid` | box: floor down · lid: exported ready |
+| `conduit_coupler.scad` | (single part) | standing on one end, no supports |
 
 Material: **ASA** in a light colour (UV resistant, stays cooler in the sun).
 4 walls, 5 top/bottom layers; clamp 50–60 % gyroid, boxes 25–30 %.
